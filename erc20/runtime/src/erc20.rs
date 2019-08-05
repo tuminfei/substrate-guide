@@ -87,6 +87,7 @@ decl_module! {
         )
         {
             let sender = ensure_signed(origin)?;
+            
             Self::int_transfer(sender, to, value)?;
         }
 
@@ -100,6 +101,7 @@ decl_module! {
             let allowance = Self::allowance((sender.clone(), spender.clone()))
                 .checked_add(&value)
                 .ok_or("overflow")?;
+
             <Allowance<T>>::insert((sender.clone(), spender.clone()), allowance);
 
             Self::deposit_event(RawEvent::Approval(sender, spender, value));
@@ -121,6 +123,7 @@ decl_module! {
                 .ok_or("not enough allowance")?;
 
             <Allowance<T>>::insert((from.clone(), sender.clone()), allowance);
+
             Self::int_transfer(from, to, value)?;
         }
     }
