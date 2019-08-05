@@ -39,7 +39,7 @@ decl_storage! {
 }
 
 impl<T: Trait> Module<T> {
-    fn init(sender: T::AccountId) -> dispatch::Result {
+    pub fn init(sender: &T::AccountId) -> dispatch::Result {
         ensure!(!Self::is_init(), "already init");
 
         <BalanceOf<T>>::insert(sender, Self::total_supply());
@@ -48,29 +48,35 @@ impl<T: Trait> Module<T> {
         Ok(())
     }
 
-    fn lock(from: T::AccountId, value: T::TokenBalance, listing_hash: T::Hash) -> dispatch::Result {
-        let sender_balance = Self::balance_of(&from)
+    pub fn lock(
+        from: &T::AccountId,
+        value: T::TokenBalance,
+        listing_hash: &T::Hash,
+    ) -> dispatch::Result {
+        let sender_balance = Self::balance_of(from)
             .checked_sub(&value)
             .ok_or("not enough balance")?;
         let deposit = Self::locked_deposits(listing_hash)
             .checked_add(&value)
             .ok_or("overflow")?;
 
-        <BalanceOf<T>>::insert(&from, sender_balance);
+        <BalanceOf<T>>::insert(from, sender_balance);
         <LockedDeposits<T>>::insert(listing_hash, deposit);
 
         Ok(())
     }
 
-    fn unlock(to: T::AccountId, value: T::TokenBalance, listing_hash: T::Hash) -> dispatch::Result {
-        let to_balance = Self::balance_of(&to)
-            .checked_add(&value)
-            .ok_or("overflow")?;
+    pub fn unlock(
+        to: &T::AccountId,
+        value: T::TokenBalance,
+        listing_hash: &T::Hash,
+    ) -> dispatch::Result {
+        let to_balance = Self::balance_of(to).checked_add(&value).ok_or("overflow")?;
         let deposit = Self::locked_deposits(listing_hash)
             .checked_sub(&value)
             .ok_or("overflow")?;
 
-        <BalanceOf<T>>::insert(&to, to_balance);
+        <BalanceOf<T>>::insert(to, to_balance);
         <LockedDeposits<T>>::insert(listing_hash, deposit);
 
         Ok(())

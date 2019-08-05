@@ -1,7 +1,7 @@
 use primitives::{ed25519, sr25519, Pair};
 use trc_runtime::{
 	AccountId, GenesisConfig, ConsensusConfig, TimestampConfig, BalancesConfig,
-	SudoConfig, IndicesConfig,
+	SudoConfig, IndicesConfig, TcrConfig,
 };
 use substrate_service;
 
@@ -115,5 +115,12 @@ fn testnet_genesis(initial_authorities: Vec<AuthorityId>, endowed_accounts: Vec<
 		sudo: Some(SudoConfig {
 			key: root_key,
 		}),
+		tcr: Some(TcrConfig {
+			owner: account_key("Alice"),
+			min_deposit: 100,
+			apply_stage_len: 120,
+			commit_stage_len: 240,
+			poll_nonce: 1,
+		})
 	}
 }
